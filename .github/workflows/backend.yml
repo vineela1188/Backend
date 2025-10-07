@@ -4,7 +4,7 @@ on:
    branches:
      - main
    paths:
-     - "backend/**"   # trigger only if backend folder changes
+     - "Backend/**"   # trigger only if backend folder changes
  workflow_dispatch:   # allow manual run
 jobs:
  build-backend:
@@ -20,30 +20,15 @@ jobs:
          distribution: 'temurin'
          java-version: '21'
  # 3. Build backend with Maven
-  - name: Build backend with Maven
-    working-directory: backend
+  - name: Build Backend with Maven
+    working-directory: Backend
     run: mvn clean package -DskipTests
 
  # 5. Build and push Docker image
   - name: Build & Push Docker image
     run: |
-      docker build -t $IMAGE_NAME ./backend
+      docker build -t $IMAGE_NAME ./Backend
 
- # 6. Login to Azure using Service Principal (AKS credentials)
-  - name: Azure Login
-    uses: azure/login@v1
-    with:
-     creds: ${{ secrets.AZURE_CREDENTIALS }}
-
- # 7. Get AKS credentials
-  - name: Set AKS context
-    uses: azure/aks-set-context@v3
-    with:
-     creds: ${{ secrets.AZURE_CREDENTIALS }}
-     cluster-name: demo-cluster 
-     resource-group: myTestRG
- # 8. Deploy to AKS
-  - name: Update k8s manifests and apply
-    run: |
+ 
       sed -i "s|actioncr.azurecr.io/demo-backend:.*|${IMAGE_NAME}|g" k8s/deployment.yaml
       kubectl apply -f k8s/ -n default
