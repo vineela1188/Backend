@@ -1,0 +1,7 @@
+com\proximus\dams\util\UserRegisterUtil.class
+com\proximus\dams\repository\UserGovernanceRepo.class
+com\proximus\dams\controller\UserRegisterController.class
+com\proximus\dams\model\UserGovernance.class
+com\proximus\dams\service\UserGovernanceService.class
+com\proximus\dams\dto\UserGovernanceDTO.class
+com\proximus\dams\DamsApplication.class
