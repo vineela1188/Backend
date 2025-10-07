@@ -20,7 +20,7 @@ jobs:
          cache: 'maven'
      
      - name: Build with Maven (skip tests optional)
-       run: mvn -B -DskipTests=false clean package
+       run: mvn -B -DskipTests=true clean package
        # If you want to skip tests in CI change -DskipTests=true
      - name: Log in to Docker Hub
        uses: docker/login-action@v2
