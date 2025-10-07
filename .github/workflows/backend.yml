@@ -1,0 +1,49 @@
+name: Build & Push Backend
+on:
+ push:
+   branches:
+     - main
+   paths:
+     - "backend/**"   # trigger only if backend folder changes
+ workflow_dispatch:   # allow manual run
+jobs:
+ build-backend:
+  runs-on: ubuntu-latest
+  steps:
+     # 1. Checkout code
+  - name: Checkout repository
+    uses: actions/checkout@v3
+     # 2. Setup JDK 21 (since your backend uses JDK 21)
+  - name: Set up JDK 21
+    uses: actions/setup-java@v3
+    with:
+         distribution: 'temurin'
+         java-version: '21'
+ # 3. Build backend with Maven
+  - name: Build backend with Maven
+    working-directory: backend
+    run: mvn clean package -DskipTests
+
+ # 5. Build and push Docker image
+  - name: Build & Push Docker image
+    run: |
+      docker build -t $IMAGE_NAME ./backend
+
+ # 6. Login to Azure using Service Principal (AKS credentials)
+  - name: Azure Login
+    uses: azure/login@v1
+    with:
+     creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+ # 7. Get AKS credentials
+  - name: Set AKS context
+    uses: azure/aks-set-context@v3
+    with:
+     creds: ${{ secrets.AZURE_CREDENTIALS }}
+     cluster-name: demo-cluster 
+     resource-group: myTestRG
+ # 8. Deploy to AKS
+  - name: Update k8s manifests and apply
+    run: |
+      sed -i "s|actioncr.azurecr.io/demo-backend:.*|${IMAGE_NAME}|g" k8s/deployment.yaml
+      kubectl apply -f k8s/ -n default
