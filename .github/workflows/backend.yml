@@ -7,6 +7,16 @@ permissions:
 jobs:
  build-and-push:
    runs-on: ubuntu-latest
+   services:
+     sonarqube:
+       image: sonarqube:lts
+       ports:
+         - 9000:9000
+       options: >-
+         --health-cmd "curl -f http://localhost:9000 || exit 1"
+         --health-interval 10s
+         --health-timeout 5s
+         --health-retries 20
    steps:
      - name: Checkout repository
        uses: actions/checkout@v4
@@ -18,8 +28,24 @@ jobs:
          cache: 'maven'
      - name: Build with Maven (skip tests temporarily)
        run: mvn -B -DskipTests=true clean package
+       
+     - name: Wait for Sonar
+       run: |
+         for i in {1..30}; do
+           if curl -sSf http://localhost:9000 > /dev/null; then
+             echo "Sonar up"; break
+           fi
+           sleep 5
+         done
      - name: SonarQube Scan
-       run: mvn sonar:sonar -Dsonar.projectKey=Backend -Dsonar.host.url=${{ secrets.SONAR_URL }} -Dsonar.login=${{ secrets.SONAR_TOKEN }}
+       env:
+         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+       run: |
+         mvn -B sonar:sonar \
+           -Dsonar.projectKey=Backend \
+           -Dsonar.host.url=http://localhost:9000 \
+           -Dsonar.login=${SONAR_TOKEN}
+
      - name: Verify JAR build
        run: ls -l target/*.jar
      - name: Set up Docker Buildx
