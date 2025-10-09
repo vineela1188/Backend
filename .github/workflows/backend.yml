@@ -1,11 +1,11 @@
-name: Build and Push Docker Image
+name: build-and-push
 on:
  push:
-   branches: [ "main" ]
-permissions:
- contents: read
+   branches: [ main ]
+ pull_request:
+   branches: [ main ]
 jobs:
- build-and-push:
+ build:
    runs-on: ubuntu-latest
    steps:
      - name: Checkout repository
@@ -13,19 +13,17 @@ jobs:
      - name: Set up JDK 21
        uses: actions/setup-java@v4
        with:
-         distribution: temurin
-         java-version: 21
-         cache: 'maven'
-     - name: Build with Maven (skip tests temporarily)
-       run: mvn -DskipTests=true clean package
+         distribution: 'temurin'
+         java-version: '21'
+     - name: Build with Maven
+       run: mvn -B clean verify -DskipTests
      - name: SonarCloud Scan
-       uses: SonarSource/sonarcloud-github-action@v2
-       with:
-        organization: "vineela1188"
-        projectKey: "Backend"
-       env:
-        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        SONAR_HOST_URL: https://sonarcloud.io
+       run: |
+         mvn -B verify sonar:sonar \
+           -Dsonar.projectKey=Backend \
+           -Dsonar.organization=vineela1188 \
+           -Dsonar.host.url=https://sonarcloud.io \
+           -Dsonar.login=${{ secrets.SONAR_TOKEN }}
      - name: Verify JAR build
        run: ls -l target/*.jar
      - name: Set up Docker Buildx
