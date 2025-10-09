@@ -17,7 +17,7 @@ jobs:
          java-version: 21
          cache: 'maven'
      - name: Build with Maven (skip tests temporarily)
-       run: mvn -B -DskipTests=true clean package
+       run: mvn -DskipTests=true clean package
      - name: SonarCloud Scan
        uses: SonarSource/sonarcloud-github-action@v2
        with:
