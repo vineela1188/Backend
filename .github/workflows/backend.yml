@@ -22,7 +22,7 @@ jobs:
        uses: SonarSource/sonarcloud-github-action@v2
        with:
         organization: "vineela1188"
-        projectKey: "vineela1188_Backend"
+        projectKey: "Backend"
        env:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         SONAR_HOST_URL: https://sonarcloud.io
