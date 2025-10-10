@@ -23,7 +23,7 @@ jobs:
            -Dsonar.projectKey=vineela1188_Backend \
            -Dsonar.organization=vineela1188 \
            -Dsonar.host.url=https://sonarcloud.io \
-           -Dsonar.login=${{ secrets.SONAR_TOKEN }}
+           -Dsonar.login=${{ secrets.SONAR_TOKEN }} \
            -Dsonar.branch.name=main
            
      - name: Verify JAR build
