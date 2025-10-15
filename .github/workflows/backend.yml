@@ -68,11 +68,15 @@ jobs:
          echo "Applying k8s manifests..."
          kubectl apply -f k8s/deployment.yaml
          kubectl apply -f k8s/service.yaml
+         echo "updating deployment image"
          # update image to the new tag (works whether manifest contained placeholder or previous image)
          kubectl set image deployment/backend-deployment backend=${IMAGE_TAG} --record
-         kubectl rollout status deployment/backend-deployment --timeout=120s
+         echo "waiting for rollout to complete"
+         kubectl rollout status deployment/backend-deployment --timeout=300s
          kubectl get pods -o wide
-         kubectl get svc
+        
      - name: Verify app (simple pod/service check)
        run: |
-         kubectl get all -n default
+         echo "verifying that backend-service is accessible"
+         kubectl get svc backend-service
+         kubectl get pods -o wide
