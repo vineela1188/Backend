@@ -17,6 +17,7 @@ spec:
      containers:
        - name: backend
          # initial image; the workflow will override it with kubectl set image
+         imagePullPolicy: Always
          image: REPLACE_WITH_DOCKERHUB/backend:latest
          ports:
            - containerPort: 8080
@@ -26,3 +27,4 @@ spec:
              port: 8080
            initialDelaySeconds: 10
            periodSeconds: 10
+
