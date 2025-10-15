@@ -51,3 +51,21 @@ jobs:
          echo "✅ Image pushed successfully!"
          echo "${{ secrets.DOCKERHUB_USERNAME }}/backend:latest"
          echo "${{ secrets.DOCKERHUB_USERNAME }}/backend:${{ github.sha }}"
+     - name: Set up kubectl
+       uses: azure/setup-kubectl@v3
+       with:
+        version: 'latest'
+     - name: Configure kubectl for Minikube
+       run: |
+        minikube status
+        kubectl config use-context minikube
+     - name: Deploy to Minikube
+       run: |
+        echo "Deploying to Minikube..."
+        kubectl apply -f deployment.yaml
+        kubectl rollout status deployment/backend-deployment
+        kubectl get pods -o wide
+     - name: Verify Deployment
+       run: |
+        echo "Verifying app is running..."
+        kubectl get svc
